@@ -7,6 +7,8 @@
   var dragWin = null;
   var dragStk = null;
   var dragRow = null;
+  var stkMode = false; // 스티커 꾸미기 모드 (켜져 있을 때만 스티커를 잡아요)
+  var stkMoved = false;
   var editingId = null;
 
   var $ = function (id) { return document.getElementById(id); };
@@ -38,7 +40,7 @@
     root.setProperty('--ln', t.ln); root.setProperty('--ln2', t.ln2); root.setProperty('--ln3', t.ln3);
     root.setProperty('--sel', t.sel); root.setProperty('--selfg', t.selFg);
     root.setProperty('--acc', t.acc); root.setProperty('--accfg', t.accFg);
-    document.body.className = 'mode-' + ui;
+    document.body.className = 'mode-' + ui + (stkMode ? ' stk-mode' : '');
     $('bLock').classList.toggle('on', !!s.lock);
     $('bLock').setAttribute('aria-pressed', s.lock ? 'true' : 'false');
     $('bLock').title = s.lock ? '위치 잠금 켜짐 (눌러서 풀기)' : '위치 잠금 꺼짐 (눌러서 잠그기)';
@@ -251,9 +253,23 @@
     return null;
   }
   function grabSticker(e) {
-    if (ui !== 'desktop' || !S || S.settings.lock || controlAt(e.clientX, e.clientY)) return null;
+    if (ui !== 'desktop' || !S || !stkMode) return null;
+    if (e.target && e.target.closest && e.target.closest('#barwrap')) return null;
     return stickerAt(e.clientX, e.clientY);
   }
+  function setStkMode(on) {
+    stkMode = !!on;
+    document.body.classList.toggle('stk-mode', stkMode);
+    $('bSticker').classList.toggle('on', stkMode);
+    $('bSticker').setAttribute('aria-pressed', stkMode ? 'true' : 'false');
+  }
+  // 스티커를 잡은 클릭이 밑에 있는 체크·버튼까지 눌리지 않게 막아요
+  document.addEventListener('click', function (e) {
+    if (stkMoved) { stkMoved = false; e.preventDefault(); e.stopPropagation(); }
+  }, true);
+  document.addEventListener('dblclick', function (e) {
+    if (stkMode && stickerAt(e.clientX, e.clientY) && !(e.target.closest && e.target.closest('#barwrap'))) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
   document.addEventListener('pointerdown', function (e) {
     if (e.button !== 0) return;
     var img = grabSticker(e);
@@ -262,6 +278,7 @@
     e.stopPropagation();
     var p = img._p;
     dragStk = { p: p, img: img, sx: e.clientX, sy: e.clientY, ox: p.x, oy: p.y };
+    stkMoved = true;
     document.body.classList.add('stk-drag');
   }, true);
   document.addEventListener('pointermove', function (e) {
@@ -276,6 +293,7 @@
     if (!dragStk) return;
     dragStk = null;
     document.body.classList.remove('stk-drag');
+    setTimeout(function () { stkMoved = false; }, 0);
     window.api.setPlaced(S.placed);
   });
   document.addEventListener('wheel', function (e) {
@@ -323,9 +341,9 @@
     var hit = false;
     if (el) hit = ui === 'desktop' ? !!el.closest('[data-hit]') : !!el.closest('[data-whit]');
     var sAt = stickerAt(e.clientX, e.clientY);
-    var cAt = sAt ? controlAt(e.clientX, e.clientY) || (el && el.closest('.row, .add')) : null;
-    if (!hit && ui === 'desktop' && sAt) hit = true;
-    document.body.classList.toggle('on-stk', ui === 'desktop' && !!sAt && !cAt);
+    var cAt = sAt && !stkMode ? controlAt(e.clientX, e.clientY) || (el && el.closest('.row, .add')) : null;
+    if (!hit && ui === 'desktop' && stkMode && sAt) hit = true;
+    document.body.classList.toggle('on-stk', ui === 'desktop' && stkMode && !!sAt && !(el && el.closest('#barwrap')));
     // 스티커 밑의 할 일 위에 마우스가 있으면 그 스티커를 흐리게 해서 글자가 보이게 해요
     Array.prototype.forEach.call($('stk').querySelectorAll('.stk'), function (im) {
       im.classList.toggle('peek', !!cAt && im === sAt);
@@ -381,7 +399,12 @@
     applyLook();
   }, { passive: false });
   $('bSet').addEventListener('click', function () { window.api.openSettings(); });
-  $('bSticker').addEventListener('click', function () { window.api.addLibrary(true); });
+  $('bSticker').addEventListener('click', function () {
+    setStkMode(!stkMode);
+    // 붙인 스티커가 하나도 없으면 바로 이미지 고르기 창을 열어요
+    if (stkMode && !S.placed.length) window.api.addLibrary(true);
+  });
+  $('bStkAdd').addEventListener('click', function () { window.api.addLibrary(true); });
   $('upd').addEventListener('click', function () {
     var u = $('upd');
     u.setAttribute('data-busy', '1');
@@ -400,7 +423,7 @@
     if (dragStk || dragWin || dragRow) return;
     S = s;
     ui = s.mode;
-    if (ui === 'work') editingId = null;
+    if (ui === 'work') { editingId = null; setStkMode(false); }
     render();
   });
   window.api.getState().then(function (s) {

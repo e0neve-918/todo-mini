@@ -7,7 +7,7 @@ button,input{font-family:inherit;font-weight:inherit}
 .card{position:relative;margin-left:40px;width:340px;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.28);box-shadow:0 8px 22px rgba(30,45,70,.22)}
 #card{margin-top:40px}
 /* 아래 버튼: 창 버튼처럼 작은 동그라미들 (위젯과 같은 유리 느낌) */
-#barwrap{display:flex;align-items:center;gap:7px;margin:7px 0 0 44px;height:28px}
+#barwrap{position:relative;z-index:2;display:flex;align-items:center;gap:7px;margin:7px 0 0 44px;height:28px}
 #barwrap .card{margin:0;flex:none;box-shadow:0 2px 6px rgba(30,45,70,.16);border-color:rgba(255,255,255,.28)}
 .dot{width:26px;height:26px;padding:0;border-radius:50%;color:var(--tx);cursor:pointer;display:flex;align-items:center;justify-content:center;background:transparent}
 .dot svg{position:relative;width:14px;height:14px}
@@ -64,3 +64,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
 .row.dragging{background:var(--ln2);border-radius:8px;box-shadow:0 2px 8px rgba(30,45,70,.18)}
 .row.dragging::before,.row.dragging + .row::before{display:none}
 .row-drag,.row-drag *{cursor:grabbing!important}
+/* 스티커 꾸미기 모드 */
+#bStkAdd{display:none}
+.stk-mode #bStkAdd{display:flex}
+.stk-mode .stk{outline:1.5px dashed rgba(255,255,255,.85);outline-offset:2px}
