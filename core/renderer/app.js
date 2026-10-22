@@ -219,40 +219,82 @@
       img.style.left = p.x + 'px';
       img.style.top = p.y + 'px';
       img.style.width = p.size + 'px';
-      if (ui === 'desktop') img.setAttribute('data-hit', '');
-      img.addEventListener('pointerdown', function (e) {
-        if (ui !== 'desktop' || S.settings.lock || e.button !== 0) return;
-        e.preventDefault();
-        img.setPointerCapture(e.pointerId);
-        dragStk = { p: p, img: img, sx: e.clientX, sy: e.clientY, ox: p.x, oy: p.y };
-      });
-      img.addEventListener('pointermove', function (e) {
-        if (!dragStk || dragStk.p !== p) return;
-        p.x = Math.round(dragStk.ox + e.clientX - dragStk.sx);
-        p.y = Math.round(dragStk.oy + e.clientY - dragStk.sy);
-        img.style.left = p.x + 'px';
-        img.style.top = p.y + 'px';
-      });
-      img.addEventListener('pointerup', function () {
-        if (dragStk && dragStk.p === p) { dragStk = null; window.api.setPlaced(S.placed); }
-      });
-      img.addEventListener('wheel', function (e) {
-        if (ui !== 'desktop' || S.settings.lock) return;
-        e.preventDefault();
-        p.size = Math.max(24, Math.min(200, Math.round(p.size * (e.deltaY < 0 ? 1.08 : 0.93))));
-        img.style.width = p.size + 'px';
-        window.api.setPlaced(S.placed);
-      }, { passive: false });
-      img.addEventListener('contextmenu', function (e) {
-        e.preventDefault();
-        if (ui !== 'desktop' || S.settings.lock) return;
-        S.placed = S.placed.filter(function (x) { return x !== p; });
-        window.api.setPlaced(S.placed);
-        renderStickers();
-      });
+      img._p = p;
       layer.appendChild(img);
     });
   }
+
+  /* ---------- 스티커: 할 일·버튼이 항상 먼저 눌리고, 빈 곳에서만 스티커를 잡아요 ---------- */
+
+  var CONTROLS = 'button, input, .tx, .hd, .upd';
+  function controlAt(x, y) {
+    var el = document.elementFromPoint(x, y);
+    var c = el ? el.closest(CONTROLS) : null;
+    // 할 일 글자는 실제 글자가 있는 곳만 할 일로 쳐요 (줄 오른쪽 빈 곳은 스티커를 잡을 수 있게)
+    if (c && c.classList.contains('tx') && c.firstChild) {
+      var rg = document.createRange();
+      rg.selectNodeContents(c);
+      var rs = rg.getClientRects(), inText = false;
+      for (var i = 0; i < rs.length; i++) {
+        if (x >= rs[i].left - 4 && x <= rs[i].right + 4 && y >= rs[i].top - 4 && y <= rs[i].bottom + 4) inText = true;
+      }
+      if (!inText) return null;
+    }
+    return c;
+  }
+  function stickerAt(x, y) {
+    var imgs = $('stk').querySelectorAll('.stk');
+    for (var i = imgs.length - 1; i >= 0; i--) {
+      var r = imgs[i].getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return imgs[i];
+    }
+    return null;
+  }
+  function grabSticker(e) {
+    if (ui !== 'desktop' || !S || S.settings.lock || controlAt(e.clientX, e.clientY)) return null;
+    return stickerAt(e.clientX, e.clientY);
+  }
+  document.addEventListener('pointerdown', function (e) {
+    if (e.button !== 0) return;
+    var img = grabSticker(e);
+    if (!img) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var p = img._p;
+    dragStk = { p: p, img: img, sx: e.clientX, sy: e.clientY, ox: p.x, oy: p.y };
+    document.body.classList.add('stk-drag');
+  }, true);
+  document.addEventListener('pointermove', function (e) {
+    if (!dragStk) return;
+    var p = dragStk.p;
+    p.x = Math.round(dragStk.ox + e.clientX - dragStk.sx);
+    p.y = Math.round(dragStk.oy + e.clientY - dragStk.sy);
+    dragStk.img.style.left = p.x + 'px';
+    dragStk.img.style.top = p.y + 'px';
+  });
+  document.addEventListener('pointerup', function () {
+    if (!dragStk) return;
+    dragStk = null;
+    document.body.classList.remove('stk-drag');
+    window.api.setPlaced(S.placed);
+  });
+  document.addEventListener('wheel', function (e) {
+    var img = grabSticker(e);
+    if (!img) return;
+    e.preventDefault();
+    var p = img._p;
+    p.size = Math.max(24, Math.min(200, Math.round(p.size * (e.deltaY < 0 ? 1.08 : 0.93))));
+    img.style.width = p.size + 'px';
+    window.api.setPlaced(S.placed);
+  }, { passive: false });
+  document.addEventListener('contextmenu', function (e) {
+    var img = grabSticker(e);
+    if (!img) return;
+    e.preventDefault();
+    S.placed = S.placed.filter(function (x) { return x !== img._p; });
+    window.api.setPlaced(S.placed);
+    renderStickers();
+  });
 
   function render() {
     if (!S) return;
@@ -280,6 +322,14 @@
     var el = document.elementFromPoint(e.clientX, e.clientY);
     var hit = false;
     if (el) hit = ui === 'desktop' ? !!el.closest('[data-hit]') : !!el.closest('[data-whit]');
+    var sAt = stickerAt(e.clientX, e.clientY);
+    var cAt = sAt ? controlAt(e.clientX, e.clientY) || (el && el.closest('.row, .add')) : null;
+    if (!hit && ui === 'desktop' && sAt) hit = true;
+    document.body.classList.toggle('on-stk', ui === 'desktop' && !!sAt && !cAt);
+    // 스티커 밑의 할 일 위에 마우스가 있으면 그 스티커를 흐리게 해서 글자가 보이게 해요
+    Array.prototype.forEach.call($('stk').querySelectorAll('.stk'), function (im) {
+      im.classList.toggle('peek', !!cAt && im === sAt);
+    });
     setIgnore(!hit);
   });
 
