@@ -15,8 +15,8 @@ button,input{font-family:inherit;font-weight:inherit}
 .dot:hover::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--ln2)}
 .dot.on{background:var(--acc);color:var(--accfg)}
 .dot.on .base{display:none}
-/* 투명도 막대: 버튼 왼쪽 빈자리에 같은 줄로 열려요 (다른 칸을 가리지 않게) */
-.pop{display:none;order:-1;flex:0 1 96px!important;min-width:56px;height:24px;border-radius:999px;align-items:center;padding:0 9px}
+/* 투명도 막대: 버튼 왼쪽 옆에 떠서 열려요 (버튼 자리는 그대로) */
+.pop{display:none;position:absolute!important;right:calc(100% + 6px);top:50%;transform:translateY(-50%);z-index:5;width:96px;height:24px;border-radius:999px;align-items:center;padding:0 9px}
 .pop.show{display:flex}
 .pop input{position:relative}
 #stk{position:absolute;left:0;top:0;width:420px;height:620px;pointer-events:none}
