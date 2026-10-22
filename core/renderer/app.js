@@ -6,6 +6,7 @@
   var lastIgnore = null;
   var dragWin = null;
   var dragStk = null;
+  var dragRow = null;
   var editingId = null;
 
   var $ = function (id) { return document.getElementById(id); };
@@ -83,6 +84,8 @@
     items.forEach(function (t) {
       var row = document.createElement('div');
       row.className = 'row' + (t.done ? ' done' : '');
+      row.setAttribute('data-id', t.id);
+      if (ui === 'desktop') bindRowDrag(row, t);
 
       var ck = document.createElement('button');
       ck.className = 'ck' + (t.done ? ' on' : '');
@@ -145,6 +148,62 @@
       list.appendChild(row);
     });
   }
+
+  /* ---------- 할 일 순서 바꾸기 (편집 화면에서 위아래로 끌기) ---------- */
+
+  function bindRowDrag(row, t) {
+    row.addEventListener('pointerdown', function (e) {
+      if (e.button !== 0 || editingId) return;
+      if (e.target.closest('.ck, .del, input')) return;
+      dragRow = { row: row, t: t, id: e.pointerId, sy: e.clientY, on: false };
+    });
+  }
+
+  // 줄을 옮기면 줄이 마우스를 놓쳐서, 움직임은 화면 전체에서 받아요
+  document.addEventListener('pointermove', function (e) {
+    if (!dragRow) return;
+    var row = dragRow.row, t = dragRow.t;
+    if (!dragRow.on) {
+      if (Math.abs(e.clientY - dragRow.sy) < 5) return;
+      dragRow.on = true;
+      row.classList.add('dragging');
+      document.body.classList.add('row-drag');
+      setIgnore(false);
+    }
+    // 같은 묶음(남은 일끼리 / 완료끼리) 안에서만 자리를 바꿔요
+    var list = $('list');
+    var rows = Array.prototype.filter.call(list.children, function (r) {
+      return r !== row && r.classList.contains('row') && r.classList.contains('done') === !!t.done;
+    });
+    for (var i = 0; i < rows.length; i++) {
+      var b = rows[i].getBoundingClientRect();
+      if (e.clientY < b.top + b.height / 2) {
+        if (row.nextSibling !== rows[i]) list.insertBefore(row, rows[i]);
+        return;
+      }
+    }
+    var last = rows[rows.length - 1];
+    if (last && last.nextSibling !== row) list.insertBefore(row, last.nextSibling);
+  });
+
+  function endRowDrag() {
+    if (!dragRow) return;
+    var row = dragRow.row, was = dragRow.on;
+    dragRow = null;
+    row.classList.remove('dragging');
+    document.body.classList.remove('row-drag');
+    if (!was) return;
+    // 화면에 보이는 순서대로, 원래 그 항목들이 있던 자리에 다시 채워 넣어요
+    var ids = Array.prototype.map.call($('list').querySelectorAll('.row'), function (r) { return r.getAttribute('data-id'); });
+    var byId = {};
+    S.todos.forEach(function (x) { byId[x.id] = x; });
+    var k = 0;
+    S.todos = S.todos.map(function (x) { return ids.indexOf(x.id) >= 0 ? byId[ids[k++]] : x; });
+    saveTodos();
+    render();
+  }
+  document.addEventListener('pointerup', endRowDrag);
+  document.addEventListener('pointercancel', endRowDrag);
 
   function renderStickers() {
     var layer = $('stk');
@@ -217,7 +276,7 @@
   /* ---------- 마우스: 투명한 곳은 뒤로 통과 ---------- */
 
   document.addEventListener('mousemove', function (e) {
-    if (dragWin || dragStk) return;
+    if (dragWin || dragStk || (dragRow && dragRow.on)) return;
     var el = document.elementFromPoint(e.clientX, e.clientY);
     var hit = false;
     if (el) hit = ui === 'desktop' ? !!el.closest('[data-hit]') : !!el.closest('[data-whit]');
@@ -281,7 +340,7 @@
   /* ---------- 시작 ---------- */
 
   window.api.onState(function (s) {
-    if (dragStk || dragWin) return;
+    if (dragStk || dragWin || dragRow) return;
     S = s;
     ui = s.mode;
     if (ui === 'work') editingId = null;
