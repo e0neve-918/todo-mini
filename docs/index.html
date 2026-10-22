@@ -29,14 +29,14 @@ details{border-top:1px solid var(--field-line);padding:9px 0;font-size:12.5px}
 details:first-of-type{border-top:0}
 summary{cursor:pointer;font-weight:600}
 details p{margin:6px 0 0;font-size:12px;color:var(--sub)}
-.shot{display:block;width:min(800px,calc(100% + 130px));max-width:none;margin:0 -65px;height:auto}
+.shot{display:block;width:min(700px,calc(100% + 80px));max-width:none;margin:0 -40px;height:auto}
 .cta{width:100%;max-width:320px;text-align:center}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 26px;border-radius:999px;background:linear-gradient(180deg,var(--b1),var(--b2));color:var(--bfg);text-decoration:none;font-size:13.5px;font-weight:600;letter-spacing:.01em;box-shadow:0 8px 18px -8px rgba(60,75,100,.5),inset 0 1px 0 rgba(255,255,255,.22);transition:transform .15s,box-shadow .15s}
 .btn svg{width:15px;height:15px}
 .btn:hover{filter:brightness(1.06);transform:translateY(-1px);box-shadow:0 12px 22px -8px rgba(60,75,100,.55),inset 0 1px 0 rgba(255,255,255,.3)}
 .btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 .cta small{display:block;margin-top:12px;font-size:11.5px;color:var(--sub)}
-@media (max-width:820px){.shot{width:calc(100% + 40px);margin:0 -20px}body{padding:16px 12px}.grid{grid-template-columns:1fr}.main{order:-1;min-height:0;gap:26px;position:static}.side{padding:14px 12px}}
+@media (max-width:820px){.shot{display:block;width:min(700px,calc(100% + 80px));max-width:none;margin:0 -40px;height:auto}body{padding:16px 12px}.grid{grid-template-columns:1fr}.main{order:-1;min-height:0;gap:26px;position:static}.side{padding:14px 12px}}
 </style>
 </head>
 <body>
@@ -74,7 +74,7 @@ details p{margin:6px 0 0;font-size:12px;color:var(--sub)}
     </aside>
 
     <main class="main">
-      <img class="shot" src="usage-v2.png" width="840" height="404" alt="ToDo-mini 사용 예시: 왼쪽은 평소 모습, 오른쪽은 제목을 두 번 클릭해 편집 도구가 나타난 모습">
+      <img class="shot" src="usage-v3.png" width="816" height="404" alt="ToDo-mini 사용 예시: 왼쪽은 평소 모습, 오른쪽은 제목을 두 번 클릭해 편집 도구가 나타난 모습">
 
       <div class="cta">
         <a class="btn" href="https://github.com/e0neve-918/todo-mini/releases/latest/download/ToDo-mini-win64.zip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Windows용 다운로드</a>
