@@ -426,9 +426,43 @@
     if (ui === 'work') { editingId = null; setStkMode(false); }
     render();
   });
+  /* ---------- 위젯 높이가 바뀌면 (화면 아래쪽에 있을 땐 위로 길어지게) ---------- */
+
+  var lastH = null;
+  var growReady = false; // 처음 그릴 때는 창을 움직이지 않아요
+  function contentBox() {
+    var top = Infinity, bottom = 0;
+    ['card', 'barwrap'].forEach(function (id) {
+      var r = $(id).getBoundingClientRect();
+      if (!r.height) return;
+      top = Math.min(top, r.top);
+      bottom = Math.max(bottom, r.bottom);
+    });
+    return { top: top, bottom: bottom };
+  }
+  function checkGrow() {
+    if (!growReady) return;
+    var b = contentBox();
+    var h = b.bottom - b.top;
+    if (lastH !== null && Math.abs(h - lastH) >= 1 && !dragWin && window.api.grow) {
+      window.api.grow(Math.round(h - lastH), Math.round(b.top), Math.round(b.bottom));
+    }
+    lastH = h;
+  }
+  if (window.ResizeObserver) {
+    var ro = new ResizeObserver(checkGrow);
+    ro.observe($('card'));
+    ro.observe($('barwrap'));
+  }
+
   window.api.getState().then(function (s) {
     S = s;
     ui = s.mode;
     render();
+    requestAnimationFrame(function () {
+      var b = contentBox();
+      lastH = b.bottom - b.top;
+      growReady = true;
+    });
   });
 })();

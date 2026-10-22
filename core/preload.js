@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('api', {
   ignore: (b) => ipcRenderer.send('ignore', b),
   getPos: () => ipcRenderer.invoke('get-pos'),
   moveTo: (x, y) => ipcRenderer.send('move-to', x, y),
+  grow: (dh, top, bottom) => ipcRenderer.send('grow', dh, top, bottom),
   togglePeek: () => ipcRenderer.send('toggle-peek'),
   openSettings: () => ipcRenderer.send('open-settings'),
   addLibrary: (place) => ipcRenderer.invoke('add-library', !!place),

@@ -369,6 +369,21 @@ ipcMain.on('ignore', (e, b) => {
 
 ipcMain.handle('get-pos', () => (win ? win.getPosition() : [0, 0]));
 
+// 할 일이 늘거나 줄어 위젯 높이가 바뀌었을 때:
+// 화면 가운데보다 아래에 있으면 아래쪽 끝을 그대로 두고 위로 길어지게 창을 올려요
+ipcMain.on('grow', (e, dh, top, bottom) => {
+  if (!win || win.isDestroyed() || !dh) return;
+  const [x, y] = win.getPosition();
+  const wa = screen.getDisplayMatching(win.getBounds()).workArea;
+  const oldMid = y + (top + bottom - dh) / 2; // 바뀌기 전 위젯 가운데
+  if (oldMid <= wa.y + wa.height / 2) return; // 위쪽 절반이면 지금처럼 아래로
+  const ny = Math.max(Math.round(y - dh), wa.y - Math.round(top)); // 위젯 윗부분이 화면 위로 넘어가지 않게
+  if (ny === y) return;
+  win.setPosition(x, ny);
+  data.pos = [x, ny];
+  save();
+});
+
 ipcMain.on('move-to', (e, x, y) => {
   if (!win || win.isDestroyed()) return;
   win.setPosition(Math.round(x), Math.round(y));
