@@ -457,6 +457,7 @@ ipcMain.handle('apply-update', () => applyUpdate());
 
 app.on('second-instance', () => openSettings());
 
+app.setAppUserModelId('com.todomini.widget');
 app.whenReady().then(() => {
   data = load();
   applyBoot();
