@@ -15,9 +15,7 @@ body{margin:0;min-height:100vh;background:var(--bg1);background-image:radial-gra
 .grid{display:grid;grid-template-columns:320px 1fr;gap:14px}
 .side{padding:22px 22px 18px}
 .main{position:relative;border-radius:22px;background:var(--inner);border:1px solid var(--panel-line);min-height:640px;position:sticky;top:20px;align-self:start;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:44px;padding:36px 24px 30px;overflow:hidden}
-.brand{display:flex;align-items:center;gap:10px;margin-bottom:22px;font-size:11px;letter-spacing:.22em;font-weight:600}
-.logo{width:26px;height:26px;border-radius:50%;background:#0D0F1A;color:#fff;display:grid;place-items:center;font-size:10px;letter-spacing:0;font-weight:700}
-@media (prefers-color-scheme:dark){.logo{background:#E8EDF3;color:#10151B}}
+.brand{margin-bottom:22px;font-size:14px;letter-spacing:.2em;font-weight:700}
 .lab{margin:20px 0 8px;font-size:10.5px;letter-spacing:.16em;color:var(--label);font-weight:600}
 .lab:first-of-type{margin-top:0}
 .lead{margin:0;font-size:13px;color:var(--sub)}
@@ -31,18 +29,11 @@ details{border-top:1px solid var(--field-line);padding:9px 0;font-size:12.5px}
 details:first-of-type{border-top:0}
 summary{cursor:pointer;font-weight:600}
 details p{margin:6px 0 0;font-size:12px;color:var(--sub)}
-.foot{margin-top:22px;font-size:11.5px;color:var(--label)}
-.foot a{color:inherit}
-/* 3D 느낌의 장식: 체크 동그라미(구)와 할 일 막대(알약) */
-.art{position:relative;width:min(380px,80vw);aspect-ratio:1;margin-top:4px}
-.plate{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.55),var(--plate) 70%);box-shadow:inset 0 2px 10px rgba(255,255,255,.4),inset 0 -14px 30px rgba(80,95,120,.14)}
-.pill{position:absolute;left:46%;top:14%;width:21%;height:62%;border-radius:999px;transform:rotate(-12deg);background:radial-gradient(120% 60% at 30% 18%,var(--shape1),var(--shape2) 85%);box-shadow:-10px 18px 28px -6px var(--shadow),inset -8px -10px 18px rgba(120,135,160,.22),inset 6px 6px 12px rgba(255,255,255,.9)}
-.sphere{position:absolute;left:18%;top:46%;width:27%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 32% 26%,var(--shape1),var(--shape2) 80%);box-shadow:-6px 16px 24px -6px var(--shadow),inset -8px -10px 16px rgba(120,135,160,.25);display:grid;place-items:center}
-.sphere svg{width:44%;height:44%;color:#7C8CA3;filter:drop-shadow(0 1px 0 rgba(255,255,255,.9))}
-.shade{position:absolute;left:30%;bottom:8%;width:46%;height:6%;border-radius:50%;background:radial-gradient(closest-side,rgba(60,75,100,.28),transparent);filter:blur(4px)}
-.cta{width:100%;max-width:300px;text-align:center}
-.btn{display:block;padding:17px 20px;border-radius:14px;background:var(--btn);color:var(--btnfg);text-decoration:none;font-size:15px;font-weight:700;letter-spacing:.02em;box-shadow:0 14px 26px -10px rgba(10,12,25,.6)}
-.btn:hover{filter:brightness(1.25)}
+.shot{display:block;width:min(426px,100%);height:auto;border-radius:20px;box-shadow:0 22px 40px -14px var(--shadow),0 0 0 1px rgba(255,255,255,.35)}
+.cta{width:100%;max-width:320px;text-align:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 26px;border-radius:999px;background:linear-gradient(180deg,#2A3140,#0D0F1A);color:#E4E8F0;text-decoration:none;font-size:13.5px;font-weight:600;letter-spacing:.01em;box-shadow:0 8px 18px -8px rgba(10,12,25,.55),inset 0 1px 0 rgba(255,255,255,.18);transition:transform .15s,box-shadow .15s}
+.btn svg{width:15px;height:15px}
+.btn:hover{transform:translateY(-1px);box-shadow:0 12px 22px -8px rgba(10,12,25,.6),inset 0 1px 0 rgba(255,255,255,.25)}
 .btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 .cta small{display:block;margin-top:12px;font-size:11.5px;color:var(--sub)}
 .sw{display:flex;gap:8px;justify-content:center;margin-top:14px}
@@ -56,7 +47,7 @@ details p{margin:6px 0 0;font-size:12px;color:var(--sub)}
   <div class="grid">
 
     <aside class="side">
-      <div class="brand"><span class="logo">TM</span>TODO-MINI</div>
+      <div class="brand">TODO-MINI</div>
 
       <div class="lab">소개</div>
       <p class="lead">바탕화면에 붙는 작은 To-Do 위젯. 평소엔 조용히 떠 있고, 제목을 두 번 클릭하면 편집 도구가 나타나요.</p>
@@ -83,20 +74,13 @@ details p{margin:6px 0 0;font-size:12px;color:var(--sub)}
       <details><summary>업데이트하면 할 일이 사라지나요?</summary><p>아니요. 할 일, 스티커, 설정은 그대로예요.</p></details>
       <details><summary>위젯이 화면 밖으로 나갔어요</summary><p>트레이 아이콘 우클릭 → "위젯 위치 처음으로"를 눌러요.</p></details>
       <details><summary>지우려면요?</summary><p>트레이 아이콘 우클릭 → 종료, 그다음 폴더를 삭제하세요.</p></details>
-
-      <div class="foot">ToDo-mini · <a href="https://github.com/e0neve-918/todo-mini/releases">모든 버전</a></div>
     </aside>
 
     <main class="main">
-      <div class="art" role="img" aria-label="체크 동그라미와 할 일 막대를 부드러운 입체 도형으로 그린 장식 그림">
-        <div class="plate"></div>
-        <div class="shade"></div>
-        <div class="pill"></div>
-        <div class="sphere"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></div>
-      </div>
+      <img class="shot" src="preview.png" width="426" height="361" alt="ToDo-mini 위젯 미리보기: 할 일 목록과 아래 간이 바">
 
       <div class="cta">
-        <a class="btn" href="https://github.com/e0neve-918/todo-mini/releases/latest/download/ToDo-mini-win64.zip">Windows용 다운로드</a>
+        <a class="btn" href="https://github.com/e0neve-918/todo-mini/releases/latest/download/ToDo-mini-win64.zip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Windows용 다운로드</a>
         <small>Windows 10 · 11 / 무료 / 로그인 없음</small>
         <div class="sw" aria-hidden="true"><i style="background:linear-gradient(135deg,#C9D1DC,#8FA3BD)"></i><i style="background:linear-gradient(135deg,#B9A7E6,#6A4FC4)"></i><i style="background:linear-gradient(135deg,#D8B9B0,#7A5A58)"></i><i style="background:linear-gradient(135deg,#7E8A9C,#3A4352)"></i><i style="background:linear-gradient(135deg,#BFE3D6,#7DBBA6)"></i></div>
         <div class="tip">색은 설정에서 두 가지를 골라 직접 만들어요</div>
