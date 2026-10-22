@@ -238,6 +238,7 @@
     if (!dragWin) return;
     window.api.moveTo(dragWin.wx + e.screenX - dragWin.sx, dragWin.wy + e.screenY - dragWin.sy);
   });
+  $('hd').addEventListener('dblclick', function () { window.api.togglePeek(); });
   $('hd').addEventListener('pointerup', function () { dragWin = null; });
 
   /* ---------- 아래 바, 새 할 일 ---------- */

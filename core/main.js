@@ -10,7 +10,7 @@ if (!app.requestSingleInstanceLock()) {
 
 const DEF = {
   todos: [{ id: 't1', text: '할 일을 두 번 눌러서 고쳐 보세요', done: false }],
-  settings: { font: 'Malgun Gothic', fsz: 14, fw: 600, tb: true, opa: 55, pin: false, auto: true, lock: false, boot: false },
+  settings: { font: 'Malgun Gothic', fsz: 14, fw: 600, tb: true, opa: 55, pin: false, auto: true, ctl: 'dbl', lock: false, boot: false },
   library: [],
   placed: [],
   pos: null
@@ -22,6 +22,7 @@ let setWin = null;
 let tray = null;
 let fgMode = 'desktop'; // 마지막으로 감지된 앞 창 상태
 let uiMode = 'desktop'; // 화면에 보이는 상태
+let peek = false; // 더블클릭으로 잠깐 편집 화면을 연 상태
 let saveTimer = null;
 let helper = null;
 let watcher = null;
@@ -165,9 +166,11 @@ const IGNORE_CLASSES = new Set([
 
 function onForeground(cls, pid) {
   if (Number(pid) === process.pid) return; // 위젯이나 설정 창 자신
+  const prev = fgMode;
   if (cls === 'Progman' || cls === 'WorkerW') fgMode = 'desktop';
   else if (IGNORE_CLASSES.has(cls)) return;
   else fgMode = 'work';
+  if (data.settings.ctl === 'auto' && fgMode !== prev) peek = false; // 자동 방식: 다른 창으로 가면 편집 화면 닫기
   refresh();
 }
 
@@ -182,7 +185,8 @@ function sendBottom() {
 
 function layerTop() {
   const s = data.settings;
-  return (s.auto && fgMode === 'work') || s.pin;
+  if (s.pin) return true;
+  return s.ctl === 'auto' ? fgMode === 'work' : true;
 }
 
 function applyLayer() {
@@ -196,7 +200,8 @@ function applyLayer() {
 }
 
 function refresh() {
-  const m = data.settings.auto ? fgMode : 'desktop';
+  const base = data.settings.ctl === 'auto' ? fgMode : 'work';
+  const m = peek ? 'desktop' : base;
   const changed = m !== uiMode;
   uiMode = m;
   applyLayer();
@@ -263,7 +268,7 @@ function createMain() {
 }
 
 function openSettings() {
-  if (uiMode === 'work') return;
+  if (uiMode === 'work') { peek = true; refresh(); }
   if (setWin && !setWin.isDestroyed()) {
     setWin.focus();
     return;
@@ -333,6 +338,12 @@ ipcMain.on('move-to', (e, x, y) => {
   win.setPosition(Math.round(x), Math.round(y));
   data.pos = [Math.round(x), Math.round(y)];
   save();
+});
+
+ipcMain.on('toggle-peek', () => {
+  if (data.settings.ctl === 'auto' && fgMode !== 'work') return; // 이미 바탕화면 편집 화면
+  peek = !peek;
+  refresh();
 });
 
 ipcMain.on('open-settings', () => openSettings());
