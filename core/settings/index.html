@@ -11,6 +11,14 @@
   <div class="top"><h1>설정</h1></div>
 
   <div class="sec">
+    <h2>테마 색상</h2>
+    <div id="pv" class="pv"><b>To-Do</b><span>보고서 초안</span><span class="d">메일 답장</span></div>
+    <div id="pk"></div>
+    <button id="reseed" class="btn" type="button">무늬 바꾸기</button>
+    <p class="hint">색 두 개를 정하면 그 사이로 대리석 무늬가 만들어져요. 모든 색은 R · G · B (0~255)로 지정해요. 칸을 누르면 슬라이더가 펼쳐져요.</p>
+  </div>
+
+  <div class="sec">
     <h2>글꼴 · 이 컴퓨터에 설치된 글꼴</h2>
     <input id="fq" class="fs" type="text" placeholder="글꼴 검색" autocomplete="off" spellcheck="false">
     <div id="fl" class="fl" role="listbox" aria-label="글꼴 목록"></div>
@@ -35,6 +43,7 @@
     <button id="updgo" class="btn go" type="button" hidden>업데이트하고 다시 시작</button>
   </div>
 </div>
+<script src="../theme.js"></script>
 <script src="settings.js"></script>
 </body>
 </html>

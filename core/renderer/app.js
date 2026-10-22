@@ -9,7 +9,7 @@
   var editingId = null;
 
   var $ = function (id) { return document.getElementById(id); };
-  var CHECK = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
+  var CHECK = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
   var XICON = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 
   function uid() { return 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
@@ -28,8 +28,14 @@
     var root = document.documentElement.style;
     root.setProperty('--ff', "'" + s.font + "','Malgun Gothic','Segoe UI',sans-serif");
     root.setProperty('--fs', s.fsz + 'px');
-    var a = (0.12 + (s.opa / 100) * 0.6).toFixed(2);
-    root.setProperty('--glass', 'rgba(150,168,190,' + a + ')');
+    root.setProperty('--a', (0.12 + (s.opa / 100) * 0.78).toFixed(2));
+    var t = window.Theme.compute(s);
+    root.setProperty('--marble', t.marble);
+    root.setProperty('--grain', t.grain);
+    root.setProperty('--tx', t.tx); root.setProperty('--tx2', t.tx2); root.setProperty('--tx3', t.tx3);
+    root.setProperty('--ln', t.ln); root.setProperty('--ln2', t.ln2); root.setProperty('--ln3', t.ln3);
+    root.setProperty('--sel', t.sel); root.setProperty('--selfg', t.selFg);
+    root.setProperty('--acc', t.acc); root.setProperty('--accfg', t.accFg);
     document.body.className = 'mode-' + ui;
     $('bPin').className = s.pin ? 'ib on' : 'ib';
     $('bPin').setAttribute('aria-pressed', s.pin ? 'true' : 'false');
