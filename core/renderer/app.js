@@ -38,6 +38,10 @@
     root.setProperty('--sel', t.sel); root.setProperty('--selfg', t.selFg);
     root.setProperty('--acc', t.acc); root.setProperty('--accfg', t.accFg);
     document.body.className = 'mode-' + ui;
+    $('bLock').className = s.lock ? 'ib on' : 'ib';
+    $('bLock').setAttribute('aria-pressed', s.lock ? 'true' : 'false');
+    $('bLock').title = s.lock ? '위치 잠금 켜짐 (눌러서 풀기)' : '위치 잠금 꺼짐 (눌러서 잠그기)';
+    $('lockArc').setAttribute('d', s.lock ? 'M8 11V8a4 4 0 0 1 8 0v3' : 'M8 11V8a4 4 0 0 1 7.5-1.9');
     $('bPin').className = s.pin ? 'ib on' : 'ib';
     $('bPin').setAttribute('aria-pressed', s.pin ? 'true' : 'false');
     $('opa').value = s.opa;
@@ -255,6 +259,11 @@
   $('opa').addEventListener('input', function () {
     S.settings.opa = Number(this.value);
     window.api.patch({ opa: S.settings.opa });
+    applyLook();
+  });
+  $('bLock').addEventListener('click', function () {
+    S.settings.lock = !S.settings.lock;
+    window.api.patch({ lock: S.settings.lock });
     applyLook();
   });
   $('bPin').addEventListener('click', function () {
