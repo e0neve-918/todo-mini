@@ -39,7 +39,7 @@
     root.setProperty('--sel', t.sel); root.setProperty('--selfg', t.selFg);
     root.setProperty('--acc', t.acc); root.setProperty('--accfg', t.accFg);
     document.body.className = 'mode-' + ui;
-    $('bLock').className = s.lock ? 'ib on' : 'ib';
+    $('bLock').classList.toggle('on', !!s.lock);
     $('bLock').setAttribute('aria-pressed', s.lock ? 'true' : 'false');
     $('bLock').title = s.lock ? '위치 잠금 켜짐 (눌러서 풀기)' : '위치 잠금 꺼짐 (눌러서 잠그기)';
     $('lockArc').setAttribute('d', s.lock ? 'M8 11V8a4 4 0 0 1 8 0v3' : 'M8 11V8a4 4 0 0 1 7.5-1.9');
@@ -323,6 +323,13 @@
     window.api.patch({ lock: S.settings.lock });
     applyLook();
   });
+  $('bOpa').addEventListener('click', function () { $('opaPop').classList.toggle('show'); });
+  $('bOpa').addEventListener('wheel', function (e) {
+    e.preventDefault();
+    S.settings.opa = Math.max(0, Math.min(100, S.settings.opa + (e.deltaY < 0 ? 5 : -5)));
+    window.api.patch({ opa: S.settings.opa });
+    applyLook();
+  }, { passive: false });
   $('bSet').addEventListener('click', function () { window.api.openSettings(); });
   $('bSticker').addEventListener('click', function () { window.api.addLibrary(true); });
   $('upd').addEventListener('click', function () {

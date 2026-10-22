@@ -6,7 +6,17 @@ button,input{font-family:inherit;font-weight:inherit}
 #stage{position:relative;width:420px;height:620px}
 .card{position:relative;margin-left:40px;width:340px;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.28);box-shadow:0 8px 22px rgba(30,45,70,.22)}
 #card{margin-top:40px}
-#barwrap{margin-top:6px;border-radius:999px;box-shadow:0 3px 10px rgba(30,45,70,.14);border-color:rgba(255,255,255,.2)}
+/* 아래 버튼: 창 버튼처럼 작은 동그라미들 (위젯과 같은 유리 느낌) */
+#barwrap{display:flex;align-items:center;gap:7px;margin:7px 0 0 44px;height:28px}
+#barwrap .card{margin:0;flex:none;box-shadow:0 2px 6px rgba(30,45,70,.16);border-color:rgba(255,255,255,.28)}
+.dot{width:26px;height:26px;padding:0;border-radius:50%;color:var(--tx);cursor:pointer;display:flex;align-items:center;justify-content:center;background:transparent}
+.dot svg{position:relative;width:14px;height:14px}
+.dot:hover::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--ln2)}
+.dot.on{background:var(--acc);color:var(--accfg)}
+.dot.on .base{display:none}
+.pop{display:none;width:130px;height:26px;border-radius:999px;align-items:center;padding:0 10px}
+.pop.show{display:flex}
+.pop input{position:relative}
 #stk{position:absolute;left:0;top:0;width:420px;height:620px;pointer-events:none}
 #stk .stk{pointer-events:auto}
 .base{position:absolute;inset:0;pointer-events:none;opacity:var(--a);background-image:var(--grain),var(--marble);background-size:160px 160px,100% 100%,100% 100%,100% 100%}
@@ -39,16 +49,9 @@ button,input{font-family:inherit;font-weight:inherit}
 .add input{flex:1;border:0;background:transparent;font:inherit;font-size:.93em;color:var(--tx);outline:none}
 .add input::placeholder{color:var(--tx2);opacity:1}
 .empty{padding:10px 0;font-size:.9em;color:var(--tx2)}
-.bar{display:flex;align-items:center;gap:1px;padding:2px 5px;position:relative}
-.ib{width:26px;height:26px;border-radius:50%;border:0;background:transparent;color:var(--tx);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none}
-.ib:hover{background:var(--ln2)}
-.ib.on{background:var(--acc);color:var(--accfg)}
-.bar svg{width:15px;height:15px}
-.sl{flex:1;display:flex;align-items:center;gap:5px;padding:0 6px;color:var(--tx2);min-width:0}
 input[type=range]{-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:22px;background:transparent;margin:0}
 input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:99px;background:var(--ln3)}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#fff;margin-top:-4.5px;box-shadow:0 1px 4px rgba(30,45,70,.4)}
-.vr{width:1px;height:14px;background:var(--ln);flex:none}
 .stk{position:absolute;filter:drop-shadow(0 2px 3px rgba(30,45,70,.3));-webkit-user-drag:none;user-select:none}
 .mode-desktop .stk{cursor:grab}
 .mode-work .stk{pointer-events:none}
