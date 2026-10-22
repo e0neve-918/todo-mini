@@ -28,6 +28,7 @@
     var root = document.documentElement.style;
     root.setProperty('--ff', "'" + s.font + "','Malgun Gothic','Segoe UI',sans-serif");
     root.setProperty('--fs', s.fsz + 'px');
+    root.setProperty('--fw', String(s.fw || 600));
     root.setProperty('--a', (0.12 + (s.opa / 100) * 0.78).toFixed(2));
     var t = window.Theme.compute(s);
     root.setProperty('--marble', t.marble);

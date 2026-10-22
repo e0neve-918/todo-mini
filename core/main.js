@@ -10,7 +10,7 @@ if (!app.requestSingleInstanceLock()) {
 
 const DEF = {
   todos: [{ id: 't1', text: '할 일을 두 번 눌러서 고쳐 보세요', done: false }],
-  settings: { font: 'Malgun Gothic', fsz: 14, opa: 55, pin: false, auto: true, lock: false, boot: false },
+  settings: { font: 'Malgun Gothic', fsz: 14, fw: 600, tb: true, opa: 55, pin: false, auto: true, lock: false, boot: false },
   library: [],
   placed: [],
   pos: null
@@ -233,7 +233,8 @@ function createMain() {
     resizable: false,
     maximizable: false,
     fullscreenable: false,
-    skipTaskbar: true,
+    skipTaskbar: data.settings.tb === false,
+    icon: path.join(__dirname, 'build', 'icon.png'),
     hasShadow: false,
     show: false,
     focusable: true,
@@ -312,6 +313,7 @@ ipcMain.on('patch-settings', (e, p) => {
   Object.assign(data.settings, p || {});
   save();
   applyBoot();
+  if (win && !win.isDestroyed()) win.setSkipTaskbar(data.settings.tb === false);
   refresh();
   broadcast(e.sender);
 });

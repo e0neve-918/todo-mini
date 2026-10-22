@@ -7,6 +7,7 @@
   var OPTS = [
     ['auto', '자동 층 전환', '바탕화면이면 맨 아래, 작업 중이면 맨 위'],
     ['lock', '위치 잠금', '위젯과 스티커가 실수로 움직이지 않게'],
+    ['tb', '작업표시줄에 표시', '아래 작업표시줄에서 앱을 찾을 수 있어요'],
     ['boot', '윈도우 시작 시 실행', '컴퓨터를 켜면 자동으로 켜져요']
   ];
 
@@ -95,6 +96,8 @@
   function renderSize() {
     $('fsz').value = S.settings.fsz;
     $('fszv').textContent = S.settings.fsz + 'px';
+    $('fw').value = S.settings.fw || 600;
+    $('fwv').textContent = S.settings.fw || 600;
   }
 
   function renderInfo() {
@@ -112,7 +115,7 @@
   var T = window.Theme;
   var PICKS = [
     ['c1', '색 1 (바탕)'],
-    ['c2', '색 2 (무늬)'],
+    ['c2', '색 2 (번지는 색)'],
     ['tl', '글자색 · 배경이 진할 때'],
     ['td', '글자색 · 배경이 밝을 때'],
     ['tf', '글자색 (직접 지정)'],
@@ -134,7 +137,8 @@
     var t = T.compute(S.settings);
     var pv = $('pv');
     pv.style.backgroundImage = t.grain + ',' + t.marble;
-    pv.style.backgroundSize = '160px 160px,420px 700px';
+    pv.style.backgroundSize = '160px 160px,100% 100%,100% 100%,100% 100%';
+    pv.style.fontWeight = S.settings.fw || 600;
     pv.style.color = t.tx;
   }
 
@@ -212,6 +216,12 @@
     return row;
   }
 
+  $('fw').addEventListener('input', function () {
+    S.settings.fw = Number(this.value);
+    window.api.patch({ fw: S.settings.fw });
+    $('fwv').textContent = this.value;
+    renderPreview();
+  });
   $('reseed').addEventListener('click', function () {
     S.settings.seed = Math.floor(Math.random() * 9000) + 1;
     window.api.patch({ seed: S.settings.seed });
