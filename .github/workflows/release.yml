@@ -53,15 +53,22 @@ jobs:
           cd ToDo-mini
           unzip -q "../${F}"
           mv electron.exe ToDo-mini.exe
-          # 아이콘/이름 심기 (실패해도 릴리스는 계속 진행)
-          (cd .. && pip install -q pillow && python3 -c "from PIL import Image; Image.open('core/build/icon.png').convert('RGBA').save('icon.ico', sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])" \
-            && mkdir -p /tmp/ri && cd /tmp/ri && npm init -y >/dev/null && npm i resedit@2 >/dev/null \
-            && cd - >/dev/null && NODE_PATH=/tmp/ri/node_modules node tools/set-exe-icon.js ToDo-mini/ToDo-mini.exe icon.ico) || echo "아이콘 심기 건너뜀"
           mkdir -p resources/app
           cp ../app/main.js ../app/package.json resources/app/
           cp -r ../core resources/app/core
           cp ../USAGE.txt "사용법.txt"
           cd ..
+          zip -q -r -9 ToDo-mini-win64.zip ToDo-mini
+
+      - name: 아이콘 심기
+        if: steps.ver.outputs.exists == 'false'
+        continue-on-error: true
+        run: |
+          pip install -q --break-system-packages pillow
+          python3 -c "from PIL import Image; Image.open('core/build/icon.png').convert('RGBA').save('icon.ico', sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])"
+          mkdir -p /tmp/ri && (cd /tmp/ri && npm init -y >/dev/null && npm i resedit@2)
+          NODE_PATH=/tmp/ri/node_modules node tools/set-exe-icon.js ToDo-mini/ToDo-mini.exe icon.ico
+          rm -f ToDo-mini-win64.zip
           zip -q -r -9 ToDo-mini-win64.zip ToDo-mini
 
       - name: 릴리스 올리기
