@@ -67,6 +67,7 @@ jobs:
           mkdir -p /tmp/ri
           (cd /tmp/ri && npm init -y >/dev/null 2>&1 && npm i resedit@2 >npm.log 2>&1) || { echo "::error::npm: $(tail -3 /tmp/ri/npm.log | tr '\n' ' ')"; exit 1; }
           NODE_PATH=/tmp/ri/node_modules node tools/set-exe-icon.js ToDo-mini/ToDo-mini.exe core/build/icon.png >/tmp/ri/run.log 2>&1 || { echo "::error::icon: $(grep -m4 -i "error\|at " /tmp/ri/run.log | tr '\n' ' ')"; exit 1; }
+          echo "::notice::$(grep 'icon groups' /tmp/ri/run.log)"
           rm -f ToDo-mini-win64.zip
           zip -q -r -9 ToDo-mini-win64.zip ToDo-mini
 

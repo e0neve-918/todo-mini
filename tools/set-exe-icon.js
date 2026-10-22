@@ -13,8 +13,12 @@ head.writeUInt16LE(1, 10); head.writeUInt16LE(32, 12);
 head.writeUInt32LE(png.length, 14); head.writeUInt32LE(22, 18);
 const ico = R.Data.IconFile.from(Buffer.concat([head, png]));
 const groups = R.Resource.IconGroupEntry.fromEntries(res.entries);
-const g = groups[0];
-R.Resource.IconGroupEntry.replaceIconsForResource(res.entries, g ? g.id : 1, g ? g.lang : 1033, ico.icons.map((i) => i.data));
+const list = groups.length ? groups : [{ id: 1, lang: 1033 }];
+console.log('icon groups:', list.map((g) => g.id + '/' + g.lang).join(', '));
+// 전기 아이콘이 하나라도 남지 않도록 모든 아이콘 그룹을 우리 아이콘으로 바꿔요
+list.forEach((g) => {
+  R.Resource.IconGroupEntry.replaceIconsForResource(res.entries, g.id, g.lang, ico.icons.map((i) => i.data));
+});
 const vis = R.Resource.VersionInfo.fromEntries(res.entries);
 if (vis[0]) {
   vis[0].setStringValues({ lang: 1033, codepage: 1200 }, {
