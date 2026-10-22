@@ -228,7 +228,7 @@
 
   /* ---------- 스티커: 할 일·버튼이 항상 먼저 눌리고, 빈 곳에서만 스티커를 잡아요 ---------- */
 
-  var CONTROLS = 'button, input, .tx, .hd, .upd';
+  var CONTROLS = 'button, input, .tx, .hd h1, .upd, #opaPop';
   function controlAt(x, y) {
     var el = document.elementFromPoint(x, y);
     var c = el ? el.closest(CONTROLS) : null;
@@ -317,8 +317,6 @@
   function render() {
     if (!S) return;
     applyLook();
-    var n = S.todos.filter(function (t) { return t.done; }).length;
-    $('summary').textContent = ui === 'work' ? n + ' / ' + S.todos.length : n + ' / ' + S.todos.length + ' 완료';
     var u = $('upd');
     if (S.update) {
       if (!u.getAttribute('data-busy')) u.textContent = '새 버전 ' + S.update.version + ' · 눌러서 업데이트';
@@ -355,6 +353,7 @@
 
   $('hd').addEventListener('pointerdown', function (e) {
     if (ui !== 'desktop' || S.settings.lock || e.button !== 0) return;
+    if (e.target.closest('#barwrap')) return; // 버튼을 누를 땐 위젯을 옮기지 않아요
     var sx = e.screenX, sy = e.screenY;
     var hd = $('hd');
     var pid = e.pointerId;
@@ -367,7 +366,10 @@
     if (!dragWin) return;
     window.api.moveTo(dragWin.wx + e.screenX - dragWin.sx, dragWin.wy + e.screenY - dragWin.sy);
   });
-  $('hd').addEventListener('dblclick', function () { window.api.togglePeek(); });
+  $('hd').addEventListener('dblclick', function (e) {
+    if (e.target.closest('#barwrap')) return;
+    window.api.togglePeek();
+  });
   $('hd').addEventListener('pointerup', function () { dragWin = null; });
 
   /* ---------- 아래 바, 새 할 일 ---------- */

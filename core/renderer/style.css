@@ -7,24 +7,25 @@ button,input{font-family:inherit;font-weight:inherit}
 .card{position:relative;margin-left:40px;width:340px;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.28);box-shadow:0 8px 22px rgba(30,45,70,.22)}
 #card{margin-top:40px}
 /* 아래 버튼: 창 버튼처럼 작은 동그라미들 (위젯과 같은 유리 느낌) */
-#barwrap{position:relative;z-index:2;display:flex;align-items:center;gap:7px;margin:7px 0 0 44px;height:28px}
-#barwrap .card{margin:0;flex:none;box-shadow:0 2px 6px rgba(30,45,70,.16);border-color:rgba(255,255,255,.28)}
-.dot{width:26px;height:26px;padding:0;border-radius:50%;color:var(--tx);cursor:pointer;display:flex;align-items:center;justify-content:center;background:transparent}
-.dot svg{position:relative;width:14px;height:14px}
+/* 오른쪽 위 버튼들 (편집 화면에서만) */
+#barwrap{position:relative;display:flex;align-items:center;gap:6px;height:26px;min-width:0;margin-left:8px}
+#barwrap .card{margin:0;flex:none;box-shadow:0 1px 4px rgba(30,45,70,.14);border-color:rgba(255,255,255,.28)}
+.dot{width:24px;height:24px;padding:0;border-radius:50%;color:var(--tx);cursor:pointer;display:flex;align-items:center;justify-content:center;background:transparent}
+.dot svg{position:relative;width:13px;height:13px}
 .dot:hover::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--ln2)}
 .dot.on{background:var(--acc);color:var(--accfg)}
 .dot.on .base{display:none}
-.pop{display:none;width:130px;height:26px;border-radius:999px;align-items:center;padding:0 10px}
+/* 투명도 막대: 버튼 왼쪽 빈자리에 같은 줄로 열려요 (다른 칸을 가리지 않게) */
+.pop{display:none;order:-1;flex:0 1 96px!important;min-width:56px;height:24px;border-radius:999px;align-items:center;padding:0 9px}
 .pop.show{display:flex}
 .pop input{position:relative}
 #stk{position:absolute;left:0;top:0;width:420px;height:620px;pointer-events:none}
 .base{position:absolute;inset:0;pointer-events:none;opacity:var(--a);background-image:var(--grain),var(--marble);background-size:160px 160px,100% 100%,100% 100%,100% 100%}
 .haze{display:none}
 .in{position:relative;padding:14px 16px 6px}
-.hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;cursor:default}
+.hd{display:flex;align-items:center;justify-content:space-between;min-height:26px;margin-bottom:8px;cursor:default}
 .mode-desktop .hd{cursor:move}
-.hd h1{margin:0;font-size:19px;font-weight:700;letter-spacing:-.3px}
-.hd span{font-size:12.5px;color:var(--tx2)}
+.hd h1{flex:none;white-space:nowrap;margin:0;font-size:19px;font-weight:700;letter-spacing:-.3px}
 .upd{display:none;width:100%;margin:0 0 6px;padding:6px 10px;border:0;border-radius:10px;background:var(--acc);color:var(--accfg);font-size:12.5px;cursor:pointer;text-align:center}
 .upd.show{display:block}
 .seg{display:flex;padding:3px;border-radius:12px;background:var(--ln2);margin-bottom:4px}
