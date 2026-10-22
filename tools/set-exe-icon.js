@@ -23,5 +23,5 @@ if (vis[0]) {
   vis[0].outputToResourceEntries(res.entries);
 }
 res.outputResource(exe);
-fs.writeFileSync(exePath, Buffer.from(exe.generateExecutable()));
+fs.writeFileSync(exePath, Buffer.from(exe.generate()));
 console.log('icon set');
