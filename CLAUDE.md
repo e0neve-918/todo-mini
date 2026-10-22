@@ -38,3 +38,9 @@
 
 ## 화면 테스트 방법
 - 브라우저(Playwright)에서 `window.api`를 가짜로 만들어 `core/renderer/index.html`, `core/settings/index.html`을 열어 스크린샷으로 확인한다.
+
+## 소개 사이트 이미지 (`docs/usage-v4.png`)
+- 1632x808 투명 PNG(사이트에선 816x404). 왼쪽 = 평소(mode 'work'), 오른쪽 = 편집 화면(mode 'desktop'), 간격 16px, 세로 가운데 정렬. 스티커·설명 문구 없음.
+- 설정: 글꼴 태백은하수체(사용자가 .otf 제공), fw 700, 글자 흰색(tmode 'fixed', tf 255,255,255), 색1 171,173,177 / 색2 86,117,184 / 강조 128,151,255, opa 100. 할 일: 택배 언박싱, 식물 물 주기, 산책 30분, 숨쉬기(완료).
+- 만드는 법: 실제 렌더러를 Playwright(deviceScaleFactor 2, omit_background)로 위젯마다 찍어서 그림자 여백 30px 포함해 잘라 합침. 글꼴 .otf는 Chromium이 @font-face(data URL)로 못 읽음(CFF 오류) → `~/.fonts`에 넣고 `fc-cache -f`로 설치해서 사용. 리눅스에선 가짜 굵게가 안 돼서 `-webkit-text-stroke:.5px currentColor`로 둘레를 살짝 두껍게 함.
+- 이미지를 바꿀 땐 파일 이름 번호를 올리고(`usage-vN.png`) `docs/index.html`의 src도 바꾼다(브라우저 캐시 피하기).
