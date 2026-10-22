@@ -1,9 +1,16 @@
 name: release
 
+# core/package.json 의 version 숫자가 새로 올라간 채로 main에 올라오면,
+# 자동으로 새 릴리스(업데이트 파일 + 처음 설치용 파일)를 만들어요.
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [main]
+    paths:
+      - 'core/**'
+      - 'app/**'
+      - 'USAGE.txt'
+      - '.github/workflows/release.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -13,21 +20,30 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ELECTRON_VERSION: 33.2.0
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: 버전 번호 넣기
+      - name: 버전 확인
+        id: ver
         run: |
-          VER="${GITHUB_REF_NAME#v}"
-          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('core/package.json','utf8'));p.version='$VER';fs.writeFileSync('core/package.json',JSON.stringify(p,null,2));"
-          cat core/package.json
+          VER=$(node -p "require('./core/package.json').version")
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          if gh release view "v$VER" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "v$VER 릴리스가 이미 있어서 건너뛰어요"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: 업데이트용 파일(core.zip) 만들기
+        if: steps.ver.outputs.exists == 'false'
         run: |
           cd core
           zip -q -r ../core.zip .
 
       - name: 처음 설치용 전체 파일 만들기
+        if: steps.ver.outputs.exists == 'false'
         run: |
           F="electron-v${ELECTRON_VERSION}-win32-x64.zip"
           curl -fsSL -O "https://github.com/electron/electron/releases/download/v${ELECTRON_VERSION}/${F}"
@@ -45,7 +61,7 @@ jobs:
           zip -q -r -9 ToDoWidget-win64.zip ToDoWidget
 
       - name: 릴리스 올리기
-        env:
-          GH_TOKEN: ${{ github.token }}
+        if: steps.ver.outputs.exists == 'false'
         run: |
-          gh release create "$GITHUB_REF_NAME" core.zip ToDoWidget-win64.zip --title "$GITHUB_REF_NAME" --generate-notes
+          VER="${{ steps.ver.outputs.version }}"
+          gh release create "v$VER" core.zip ToDoWidget-win64.zip --target "$GITHUB_SHA" --title "v$VER" --generate-notes
