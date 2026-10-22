@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>설정</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' file: data:; style-src 'self' 'unsafe-inline'; script-src 'self'">
+<link rel="stylesheet" href="settings.css">
+</head>
+<body>
+<div class="card">
+  <div class="top"><h1>설정</h1></div>
+
+  <div class="sec">
+    <h2>글꼴 · 이 컴퓨터에 설치된 글꼴</h2>
+    <input id="fq" class="fs" type="text" placeholder="글꼴 검색" autocomplete="off" spellcheck="false">
+    <div id="fl" class="fl" role="listbox" aria-label="글꼴 목록"></div>
+    <div class="sz"><span>글자 크기</span><input id="fsz" type="range" min="12" max="20" aria-label="글자 크기"><span id="fszv"></span></div>
+  </div>
+
+  <div class="sec">
+    <h2>스티커</h2>
+    <div id="tiles" class="tiles"></div>
+    <p class="hint">PNG(투명 배경 권장) · 최대 20개<br>스티커를 누르면 위젯에 붙어요. 오른쪽 클릭하면 목록에서 지워요.<br>붙인 뒤에는 위젯에서 끌어서 옮기고, 마우스 휠로 크기를 바꾸고, 오른쪽 클릭으로 떼어요.</p>
+  </div>
+
+  <div class="sec">
+    <h2>동작</h2>
+    <div id="opts"></div>
+  </div>
+
+  <div class="sec">
+    <h2>정보</h2>
+    <div class="opt"><span>현재 버전<small id="ver"></small></span><button id="chk" class="btn" type="button">업데이트 확인</button></div>
+    <p id="updmsg" class="hint"></p>
+    <button id="updgo" class="btn go" type="button" hidden>업데이트하고 다시 시작</button>
+  </div>
+</div>
+<script src="settings.js"></script>
+</body>
+</html>

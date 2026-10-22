@@ -1,0 +1,51 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      ELECTRON_VERSION: 33.2.0
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 버전 번호 넣기
+        run: |
+          VER="${GITHUB_REF_NAME#v}"
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('core/package.json','utf8'));p.version='$VER';fs.writeFileSync('core/package.json',JSON.stringify(p,null,2));"
+          cat core/package.json
+
+      - name: 업데이트용 파일(core.zip) 만들기
+        run: |
+          cd core
+          zip -q -r ../core.zip .
+
+      - name: 처음 설치용 전체 파일 만들기
+        run: |
+          F="electron-v${ELECTRON_VERSION}-win32-x64.zip"
+          curl -fsSL -O "https://github.com/electron/electron/releases/download/v${ELECTRON_VERSION}/${F}"
+          curl -fsSL -O "https://github.com/electron/electron/releases/download/v${ELECTRON_VERSION}/SHASUMS256.txt"
+          grep " \*\?${F}\$" SHASUMS256.txt | sha256sum -c -
+          mkdir ToDoWidget
+          cd ToDoWidget
+          unzip -q "../${F}"
+          mv electron.exe ToDoWidget.exe
+          mkdir -p resources/app
+          cp ../app/main.js ../app/package.json resources/app/
+          cp -r ../core resources/app/core
+          cp ../USAGE.txt "사용법.txt"
+          cd ..
+          zip -q -r -9 ToDoWidget-win64.zip ToDoWidget
+
+      - name: 릴리스 올리기
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" core.zip ToDoWidget-win64.zip --title "$GITHUB_REF_NAME" --generate-notes

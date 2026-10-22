@@ -1,0 +1,6 @@
+{
+  "name": "todo-widget",
+  "version": "1.0.0",
+  "main": "main.js",
+  "description": "To-Do desktop widget"
+}
