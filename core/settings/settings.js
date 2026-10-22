@@ -63,28 +63,6 @@
   function renderOpts() {
     var box = $('opts');
     box.innerHTML = '';
-    var cur = S.settings.ctl === 'auto' ? 'auto' : 'dbl';
-    var cr = document.createElement('div');
-    cr.className = 'ctl';
-    var ct = document.createElement('div');
-    ct.className = 'opt-t';
-    ct.innerHTML = '위젯 방식<small></small>';
-    ct.querySelector('small').textContent = cur === 'dbl' ? '항상 위에 떠 있고, 제목(To-Do)을 두 번 클릭하면 편집 화면이 열리고 닫혀요' : '바탕화면이면 맨 아래 + 편집 화면, 다른 프로그램을 쓰면 맨 위 + 체크만 (제목을 두 번 클릭해도 편집 가능)';
-    var sg = document.createElement('div');
-    sg.className = 'seg2';
-    [['dbl', '더블클릭'], ['auto', '자동 전환']].forEach(function (m) {
-      var b = document.createElement('button');
-      b.type = 'button'; b.textContent = m[1];
-      b.className = cur === m[0] ? 'sel' : '';
-      b.addEventListener('click', function () {
-        S.settings.ctl = m[0];
-        window.api.patch({ ctl: m[0] });
-        renderOpts();
-      });
-      sg.appendChild(b);
-    });
-    cr.appendChild(ct); cr.appendChild(sg);
-    box.appendChild(cr);
     OPTS.forEach(function (o) {
       var on = !!S.settings[o[0]];
       var row = document.createElement('div');

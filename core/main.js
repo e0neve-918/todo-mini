@@ -170,7 +170,6 @@ function onForeground(cls, pid) {
   if (cls === 'Progman' || cls === 'WorkerW') fgMode = 'desktop';
   else if (IGNORE_CLASSES.has(cls)) return;
   else fgMode = 'work';
-  if (data.settings.ctl === 'auto' && fgMode !== prev) peek = false; // 자동 방식: 다른 창으로 가면 편집 화면 닫기
   refresh();
 }
 
@@ -185,8 +184,7 @@ function sendBottom() {
 
 function layerTop() {
   const s = data.settings;
-  if (s.pin) return true;
-  return s.ctl === 'auto' ? fgMode === 'work' : true;
+  return true; // 항상 맨 위에 떠 있어요 (편집 화면은 제목 더블클릭)
 }
 
 function applyLayer() {
@@ -200,8 +198,7 @@ function applyLayer() {
 }
 
 function refresh() {
-  const base = data.settings.ctl === 'auto' ? fgMode : 'work';
-  const m = peek ? 'desktop' : base;
+  const m = peek ? 'desktop' : 'work';
   const changed = m !== uiMode;
   uiMode = m;
   applyLayer();
@@ -294,6 +291,7 @@ function createTray() {
     tray = new Tray(icon);
     tray.setToolTip('To-Do 위젯');
     tray.setContextMenu(Menu.buildFromTemplate([
+      { label: '편집 화면 열기 / 닫기', click: () => { peek = !peek; refresh(); } },
       { label: '설정 열기', click: () => openSettings() },
       { label: '위젯 위치 처음으로', click: () => {
         const wa = screen.getPrimaryDisplay().workArea;
@@ -341,7 +339,6 @@ ipcMain.on('move-to', (e, x, y) => {
 });
 
 ipcMain.on('toggle-peek', () => {
-  if (data.settings.ctl === 'auto' && fgMode !== 'work') return; // 이미 바탕화면 편집 화면
   peek = !peek;
   refresh();
 });

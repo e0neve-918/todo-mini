@@ -17,7 +17,7 @@ button,input{font-family:inherit;font-weight:inherit}
 .hd h1{margin:0;font-size:19px;font-weight:700;letter-spacing:-.3px}
 .hd span{font-size:12.5px;color:var(--tx2)}
 .upd{display:none;width:100%;margin:0 0 6px;padding:6px 10px;border:0;border-radius:10px;background:var(--acc);color:var(--accfg);font-size:12.5px;cursor:pointer;text-align:center}
-.mode-desktop .upd.show{display:block}
+.upd.show{display:block}
 .seg{display:flex;padding:3px;border-radius:12px;background:var(--ln2);margin-bottom:4px}
 .seg button{flex:1;min-height:26px;border:0;border-radius:9px;background:transparent;color:var(--tx2);font-size:13px;font-weight:var(--fw);cursor:pointer}
 .seg button.sel{background:var(--sel);color:var(--selfg);font-weight:600;box-shadow:0 1px 3px rgba(30,45,70,.2)}

@@ -42,8 +42,6 @@
     $('bLock').setAttribute('aria-pressed', s.lock ? 'true' : 'false');
     $('bLock').title = s.lock ? '위치 잠금 켜짐 (눌러서 풀기)' : '위치 잠금 꺼짐 (눌러서 잠그기)';
     $('lockArc').setAttribute('d', s.lock ? 'M8 11V8a4 4 0 0 1 8 0v3' : 'M8 11V8a4 4 0 0 1 7.5-1.9');
-    $('bPin').className = s.pin ? 'ib on' : 'ib';
-    $('bPin').setAttribute('aria-pressed', s.pin ? 'true' : 'false');
     $('opa').value = s.opa;
   }
 
@@ -264,11 +262,6 @@
   $('bLock').addEventListener('click', function () {
     S.settings.lock = !S.settings.lock;
     window.api.patch({ lock: S.settings.lock });
-    applyLook();
-  });
-  $('bPin').addEventListener('click', function () {
-    S.settings.pin = !S.settings.pin;
-    window.api.patch({ pin: S.settings.pin });
     applyLook();
   });
   $('bSet').addEventListener('click', function () { window.api.openSettings(); });
