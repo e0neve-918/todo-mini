@@ -43,6 +43,39 @@ const isNewer = (a, b) => {
   return false;
 };
 
+// 윈도우는 여러 크기가 담긴 .ico 를 써야 작업표시줄·고정 아이콘이 또렷하고 바뀌지 않아요
+const ICON = path.join(__dirname, 'build', process.platform === 'win32' ? 'icon.ico' : 'icon.png');
+const APP_ID = 'com.todomini.widget';
+
+// 작업표시줄에 고정할 때 쓸 아이콘 파일을 바뀌지 않는 자리(AppData)에 복사해 둬요.
+// 파일 이름에 번호를 붙여서, 윈도우가 예전 아이콘을 기억(캐시)하고 있어도 새로 읽게 해요.
+function pinIconPath() {
+  try {
+    const dst = path.join(app.getPath('userData'), 'pin-icon-2.ico');
+    if (!fs.existsSync(dst)) {
+      fs.mkdirSync(app.getPath('userData'), { recursive: true });
+      fs.copyFileSync(path.join(__dirname, 'build', 'icon.ico'), dst);
+    }
+    return dst;
+  } catch (e) {
+    return path.join(__dirname, 'build', 'icon.ico');
+  }
+}
+
+// 작업표시줄 고정 정보(아이콘·이름·실행 파일)를 창에 직접 알려 줘요
+function setPinInfo(w) {
+  if (process.platform !== 'win32' || !w || w.isDestroyed()) return;
+  try {
+    w.setAppDetails({
+      appId: APP_ID,
+      appIconPath: pinIconPath(),
+      appIconIndex: 0,
+      relaunchCommand: '"' + process.execPath + '"',
+      relaunchDisplayName: 'ToDo-mini'
+    });
+  } catch (e) {}
+}
+
 const dataFile = () => path.join(app.getPath('userData'), 'data.json');
 const stickerDir = () => path.join(app.getPath('userData'), 'stickers');
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -236,13 +269,14 @@ function createMain() {
     maximizable: false,
     fullscreenable: false,
     skipTaskbar: data.settings.tb === false,
-    icon: path.join(__dirname, 'build', 'icon.png'),
+    icon: ICON,
     hasShadow: false,
     show: false,
     focusable: true,
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true }
   });
   win.setMenuBarVisibility(false);
+  setPinInfo(win);
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
   win.once('ready-to-show', () => {
     win.showInactive();
@@ -278,16 +312,20 @@ function openSettings() {
     resizable: false,
     maximizable: false,
     backgroundColor: '#C9D1DC',
+    icon: ICON,
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true }
   });
   setWin.setMenu(null);
+  setPinInfo(setWin);
   setWin.loadFile(path.join(__dirname, 'settings', 'index.html'));
   setWin.on('closed', () => { setWin = null; });
 }
 
 function createTray() {
   try {
-    const icon = nativeImage.createFromPath(path.join(__dirname, 'build', 'icon.png')).resize({ width: 16, height: 16 });
+    const icon = process.platform === 'win32'
+      ? nativeImage.createFromPath(ICON)
+      : nativeImage.createFromPath(ICON).resize({ width: 16, height: 16 });
     tray = new Tray(icon);
     tray.setToolTip('To-Do 위젯');
     tray.setContextMenu(Menu.buildFromTemplate([
@@ -465,7 +503,7 @@ ipcMain.handle('apply-update', () => applyUpdate());
 
 app.on('second-instance', () => openSettings());
 
-app.setAppUserModelId('com.todomini.widget');
+app.setAppUserModelId(APP_ID);
 app.whenReady().then(() => {
   data = load();
   applyBoot();
