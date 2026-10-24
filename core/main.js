@@ -21,7 +21,7 @@ let win = null;
 let setWin = null;
 let tray = null;
 let fgMode = 'desktop'; // 마지막으로 감지된 앞 창 상태
-let uiMode = 'desktop'; // 화면에 보이는 상태
+let uiMode = 'work'; // 화면에 보이는 상태 (시작은 평소 화면 — 켜질 때 크기가 바뀌어 창이 밀리지 않게)
 let peek = false; // 더블클릭으로 잠깐 편집 화면을 연 상태
 let saveTimer = null;
 let helper = null;
@@ -249,15 +249,33 @@ function applyBoot() {
 
 /* ---------- 창 만들기 ---------- */
 
+// 위젯 카드(창 안에서 왼쪽 40px, 위 40px부터 340px 폭)가 화면 안에 다 보이도록 창 위치를 맞춰요
+const CARD_L = 40, CARD_T = 40, CARD_W = 340, CARD_MIN_H = 160;
+function onScreen(x, y, cardH) {
+  const h = Math.max(cardH || 0, CARD_MIN_H);
+  const d = screen.getDisplayMatching({ x: Math.round(x) + CARD_L, y: Math.round(y) + CARD_T, width: CARD_W, height: h });
+  const wa = d.workArea;
+  let nx = Math.min(Math.max(Math.round(x), wa.x - CARD_L), wa.x + wa.width - CARD_L - CARD_W);
+  let ny = Math.min(Math.round(y), wa.y + wa.height - CARD_T - h);
+  ny = Math.max(ny, wa.y - CARD_T);
+  return [nx, ny];
+}
+
+function rescueWidget() {
+  if (!win || win.isDestroyed()) return;
+  const [x, y] = win.getPosition();
+  const [nx, ny] = onScreen(x, y);
+  if (nx !== x || ny !== y) { win.setPosition(nx, ny); data.pos = [nx, ny]; save(); }
+  if (!win.isVisible()) win.showInactive();
+  applyLayer();
+}
+
 function createMain() {
   const wa = screen.getPrimaryDisplay().workArea;
   let [x, y] = [wa.x + 60, wa.y + 60];
   if (data.pos) {
-    const d = screen.getDisplayMatching({ x: data.pos[0], y: data.pos[1], width: 100, height: 100 });
-    if (data.pos[0] >= d.workArea.x - 300 && data.pos[0] < d.workArea.x + d.workArea.width - 50 &&
-        data.pos[1] >= d.workArea.y - 50 && data.pos[1] < d.workArea.y + d.workArea.height - 50) {
-      [x, y] = data.pos;
-    }
+    [x, y] = onScreen(data.pos[0], data.pos[1]);
+    if (x !== data.pos[0] || y !== data.pos[1]) { data.pos = [x, y]; save(); }
   }
   win = new BrowserWindow({
     width: 420,
@@ -338,7 +356,7 @@ function createTray() {
       { type: 'separator' },
       { label: '종료', click: () => app.quit() }
     ]));
-    tray.on('click', () => openSettings());
+    tray.on('click', () => { rescueWidget(); openSettings(); });
   } catch (e) {}
 }
 
@@ -379,6 +397,7 @@ ipcMain.on('grow', (e, dh, top, bottom) => {
   if (oldMid <= wa.y + wa.height / 2) return; // 위쪽 절반이면 지금처럼 아래로
   const ny = Math.max(Math.round(y - dh), wa.y - Math.round(top)); // 위젯 윗부분이 화면 위로 넘어가지 않게
   if (ny === y) return;
+  if (ny + bottom > wa.y + wa.height) return; // 아래로 화면 밖으로 밀리는 경우는 하지 않아요
   win.setPosition(x, ny);
   data.pos = [x, ny];
   save();
@@ -516,7 +535,7 @@ ipcMain.handle('apply-update', () => applyUpdate());
 
 /* ---------- 시작 ---------- */
 
-app.on('second-instance', () => openSettings());
+app.on('second-instance', () => { rescueWidget(); openSettings(); });
 
 app.setAppUserModelId(APP_ID);
 app.whenReady().then(() => {
