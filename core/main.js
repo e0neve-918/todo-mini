@@ -241,9 +241,13 @@ function refresh() {
   }
 }
 
+// 윈도우 시작 때 자동 실행된 건지 구분하려고 '--autostart' 를 붙여 둬요
+const BOOT_ARGS = ['--autostart'];
+const startedByBoot = process.argv.includes('--autostart');
 function applyBoot() {
   try {
-    app.setLoginItemSettings({ openAtLogin: !!data.settings.boot });
+    // 같은 이름으로 등록돼서 예전(인자 없는) 자동 실행 항목은 이걸로 덮어써져요
+    app.setLoginItemSettings({ openAtLogin: !!data.settings.boot, args: BOOT_ARGS });
   } catch (e) {}
 }
 
@@ -261,12 +265,39 @@ function onScreen(x, y, cardH) {
   return [nx, ny];
 }
 
+function placeWidget(nx, ny) {
+  if (!win || win.isDestroyed()) return;
+  // 모니터마다 배율이 달라도 창 크기가 바뀌지 않게 크기까지 같이 정해요
+  win.setBounds({ x: nx, y: ny, width: 420, height: 620 });
+  data.pos = [nx, ny];
+  save();
+}
+
+// 위젯을 '지금 마우스가 있는 화면'으로 데려와요.
+// 꺼진 모니터·펜 태블릿 화면처럼 윈도우는 있다고 하지만 눈에 안 보이는 화면에 가 있어도 다시 보이게 해요.
+function bringToMouseScreen() {
+  if (!win || win.isDestroyed()) return;
+  const here = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+  const [x, y] = win.getPosition();
+  const now = screen.getDisplayMatching({ x: x + CARD_L, y: y + CARD_T, width: CARD_W, height: CARD_MIN_H });
+  let nx = x, ny = y;
+  if (now.id !== here.id) {
+    // 같은 비율 자리로 옮겨요 (원래 화면 왼쪽 위에 있었으면 새 화면에서도 왼쪽 위)
+    const a = now.workArea, b = here.workArea;
+    const fx = (x + CARD_L - a.x) / Math.max(1, a.width - CARD_W);
+    const fy = (y + CARD_T - a.y) / Math.max(1, a.height - CARD_MIN_H);
+    nx = Math.round(b.x + Math.min(1, Math.max(0, fx)) * (b.width - CARD_W)) - CARD_L;
+    ny = Math.round(b.y + Math.min(1, Math.max(0, fy)) * (b.height - CARD_MIN_H)) - CARD_T;
+  }
+  [nx, ny] = onScreen(nx, ny);
+  if (nx !== x || ny !== y) placeWidget(nx, ny);
+}
+
 function rescueWidget() {
   if (!win || win.isDestroyed()) return;
-  const [x, y] = win.getPosition();
-  const [nx, ny] = onScreen(x, y);
-  if (nx !== x || ny !== y) { win.setPosition(nx, ny); data.pos = [nx, ny]; save(); }
+  bringToMouseScreen();
   if (!win.isVisible()) win.showInactive();
+  win.moveTop();
   applyLayer();
 }
 
@@ -297,6 +328,8 @@ function createMain() {
   setPinInfo(win);
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
   win.once('ready-to-show', () => {
+    // 직접 실행했을 땐 마우스가 있는 화면에 꼭 보이게 해요 (윈도우 시작 자동 실행은 저장된 자리 그대로)
+    if (!startedByBoot) bringToMouseScreen();
     win.showInactive();
     win.setIgnoreMouseEvents(true, { forward: true });
     refresh();
@@ -350,8 +383,9 @@ function createTray() {
       { label: '편집 화면 열기 / 닫기', click: () => { peek = !peek; refresh(); } },
       { label: '설정 열기', click: () => openSettings() },
       { label: '위젯 위치 처음으로', click: () => {
-        const wa = screen.getPrimaryDisplay().workArea;
-        if (win) { win.setPosition(wa.x + 60, wa.y + 60); data.pos = [wa.x + 60, wa.y + 60]; save(); }
+        const wa = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).workArea;
+        placeWidget(wa.x + 60, wa.y + 60);
+        rescueWidget();
       } },
       { type: 'separator' },
       { label: '종료', click: () => app.quit() }
@@ -535,7 +569,11 @@ ipcMain.handle('apply-update', () => applyUpdate());
 
 /* ---------- 시작 ---------- */
 
-app.on('second-instance', () => { rescueWidget(); openSettings(); });
+// 이미 켜져 있는데 또 실행하면: 설정 창 대신 위젯을 마우스 있는 화면에 보여 주고 편집 화면을 열어요
+app.on('second-instance', () => {
+  rescueWidget();
+  if (!peek) { peek = true; refresh(); }
+});
 
 app.setAppUserModelId(APP_ID);
 app.whenReady().then(() => {
